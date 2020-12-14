@@ -31,32 +31,23 @@ namespace Folder2CSV
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.btnConvertir = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.status = new System.Windows.Forms.StatusStrip();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnSeleccionarCarpeta = new System.Windows.Forms.Button();
             this.lblCarpeta = new System.Windows.Forms.Label();
             this.linklblCarpeta = new System.Windows.Forms.LinkLabel();
+            this.chkArchivos = new System.Windows.Forms.CheckedListBox();
             this.SuspendLayout();
             // 
             // btnConvertir
             // 
-            this.btnConvertir.Location = new System.Drawing.Point(12, 220);
+            this.btnConvertir.Location = new System.Drawing.Point(12, 162);
             this.btnConvertir.Name = "btnConvertir";
-            this.btnConvertir.Size = new System.Drawing.Size(230, 29);
+            this.btnConvertir.Size = new System.Drawing.Size(162, 29);
             this.btnConvertir.TabIndex = 1;
             this.btnConvertir.Text = "Convertir";
             this.btnConvertir.UseVisualStyleBackColor = true;
             this.btnConvertir.Click += new System.EventHandler(this.btnConvertir_Click);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Location = new System.Drawing.Point(12, 47);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(230, 167);
-            this.groupBox2.TabIndex = 2;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Seleccionar archivos";
             // 
             // status
             // 
@@ -70,7 +61,7 @@ namespace Folder2CSV
             // 
             this.btnSeleccionarCarpeta.Location = new System.Drawing.Point(12, 12);
             this.btnSeleccionarCarpeta.Name = "btnSeleccionarCarpeta";
-            this.btnSeleccionarCarpeta.Size = new System.Drawing.Size(230, 29);
+            this.btnSeleccionarCarpeta.Size = new System.Drawing.Size(162, 29);
             this.btnSeleccionarCarpeta.TabIndex = 4;
             this.btnSeleccionarCarpeta.Text = "Seleccionar carpeta";
             this.btnSeleccionarCarpeta.UseVisualStyleBackColor = true;
@@ -79,7 +70,7 @@ namespace Folder2CSV
             // lblCarpeta
             // 
             this.lblCarpeta.AutoSize = true;
-            this.lblCarpeta.Location = new System.Drawing.Point(258, 9);
+            this.lblCarpeta.Location = new System.Drawing.Point(192, 9);
             this.lblCarpeta.Name = "lblCarpeta";
             this.lblCarpeta.Size = new System.Drawing.Size(113, 13);
             this.lblCarpeta.TabIndex = 5;
@@ -89,7 +80,7 @@ namespace Folder2CSV
             // 
             this.linklblCarpeta.AutoSize = true;
             this.linklblCarpeta.Enabled = false;
-            this.linklblCarpeta.Location = new System.Drawing.Point(258, 28);
+            this.linklblCarpeta.Location = new System.Drawing.Point(192, 28);
             this.linklblCarpeta.Name = "linklblCarpeta";
             this.linklblCarpeta.Size = new System.Drawing.Size(47, 13);
             this.linklblCarpeta.TabIndex = 6;
@@ -97,17 +88,25 @@ namespace Folder2CSV
             this.linklblCarpeta.Text = "Ninguna";
             this.linklblCarpeta.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblCarpeta_LinkClicked);
             // 
+            // chkArchivos
+            // 
+            this.chkArchivos.FormattingEnabled = true;
+            this.chkArchivos.Location = new System.Drawing.Point(12, 47);
+            this.chkArchivos.Name = "chkArchivos";
+            this.chkArchivos.Size = new System.Drawing.Size(433, 109);
+            this.chkArchivos.TabIndex = 7;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(458, 523);
+            this.Controls.Add(this.chkArchivos);
             this.Controls.Add(this.linklblCarpeta);
             this.Controls.Add(this.lblCarpeta);
             this.Controls.Add(this.btnSeleccionarCarpeta);
             this.Controls.Add(this.status);
-            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnConvertir);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -120,12 +119,12 @@ namespace Folder2CSV
 
         #endregion
         private System.Windows.Forms.Button btnConvertir;
-        private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.StatusStrip status;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Button btnSeleccionarCarpeta;
         private System.Windows.Forms.Label lblCarpeta;
         private System.Windows.Forms.LinkLabel linklblCarpeta;
+        private System.Windows.Forms.CheckedListBox chkArchivos;
     }
 }
 

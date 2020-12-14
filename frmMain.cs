@@ -18,6 +18,8 @@ namespace Folder2CSV
         }
         private void btnSeleccionarCarpeta_Click(object sender, EventArgs e)
         {
+            chkArchivos.Items.Clear();
+
             folderBrowserDialog.ShowDialog();
             MessageBox.Show("Seleccionaste la carpeta " + folderBrowserDialog.SelectedPath, "Mensaje importante", MessageBoxButtons.OK);
 
@@ -26,6 +28,17 @@ namespace Folder2CSV
                 linklblCarpeta.Text = folderBrowserDialog.SelectedPath;
                 linklblCarpeta.Enabled = true;
 
+                string[] archivos = System.IO.Directory.GetFiles(folderBrowserDialog.SelectedPath);
+
+                for (int i = 0; i < archivos.Length; i++)
+                {
+                    string ext = (archivos[i].Split('.')).Last();
+
+                    if(ext == ".xls")
+                    {
+                        chkArchivos.Items.Add(archivos[i], true);
+                    }
+                }
             }
         }
 
@@ -33,12 +46,7 @@ namespace Folder2CSV
         {
             if (System.IO.Directory.Exists(folderBrowserDialog.SelectedPath))
             {
-                string[] archivos = System.IO.Directory.GetFiles(folderBrowserDialog.SelectedPath);
-
-                foreach (string archivo in archivos)
-                {
-                    // MessageBox.Show(archivo, "Ventanita", MessageBoxButtons.OK);
-                }
+                
             }
             else
             {
