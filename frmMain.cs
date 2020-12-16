@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-
 using Excel = Microsoft.Office.Interop.Excel;
 using CsvHelper;
 
@@ -14,14 +13,12 @@ namespace Folder2CSV
         public frmMain()
         {
             InitializeComponent();
-
-
+            version.Text = Application.ProductVersion;
         }
         private void btnSeleccionarCarpeta_Click(object sender, EventArgs e)
         {
-            estado.Text = "Seleccionando carpeta...";
             chkArchivos.Items.Clear();
-
+            
             folderBrowserDialog.ShowDialog();
 
             if (System.IO.Directory.Exists(folderBrowserDialog.SelectedPath))
@@ -46,26 +43,25 @@ namespace Folder2CSV
 
         private void btnConvertir_Click(object sender, EventArgs e)
         {
-            estado.Text = "Procesando...";
             if (System.IO.Directory.Exists(folderBrowserDialog.SelectedPath))
             {
-                Excel.Application xlApp = new Excel.Application();
+                Cursor.Current = Cursors.WaitCursor;
+                int totalArchivos = chkArchivos.CheckedItems.Count;
 
                 foreach (var archivo in chkArchivos.CheckedItems)
                 {
+                    estado.Text = "Convirtiendo " + archivo + "...";
+                    Excel.Application xlApp = new Excel.Application();
+
                     string rutaCompleta = folderBrowserDialog.SelectedPath + "\\" + archivo.ToString();
                     Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(rutaCompleta);
                     Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[1];
                     Excel.Range xlRange = xlWorksheet.UsedRange;
 
                     string rutaCSV = getRutaCSV(archivo.ToString());
-                    Console.WriteLine(rutaCSV);
-
                     var writer = new StreamWriter(rutaCSV);
                     var csv = new CsvWriter(writer, System.Globalization.CultureInfo.CurrentCulture);
-
                     csv.Configuration.Delimiter = ";";
-                    // csv.Configuration.HasHeaderRecord = true;
 
                     int i, j;
                     i = 1;
@@ -78,14 +74,16 @@ namespace Folder2CSV
                             string campo = xlRange.Cells[i, j].Value.ToString().Trim().ToUpper();
                             csv.WriteField(campo);
                             j += 1;
-                        } 
+                        }
                         csv.NextRecord();
                         i += 1;
-                    } 
+                    }
                     csv.Flush();
                     csv.Dispose();
                 }
-                estado.Text = "Conversión finalizada";
+
+                estado.Text = "Conversión finalizada.";
+                Cursor.Current = Cursors.Default;
             }
             else
             {
@@ -103,5 +101,6 @@ namespace Folder2CSV
             string nombreArchivo = ((rutaArchivo.Split('\\').Last()).Split('.')).First();
             return folderBrowserDialog.SelectedPath.ToString() + "\\" + nombreArchivo + ".csv";
         }
+
     }
 }
