@@ -2,6 +2,7 @@
 using System.IO;
 using System.ComponentModel;
 using System.Linq;
+using System.Drawing;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using CsvHelper;
@@ -45,15 +46,23 @@ namespace Folder2CSV
         {
             if (System.IO.Directory.Exists(folderBrowserDialog.SelectedPath))
             {
+                dgArchivosAConvertir.Rows.Clear();
                 Cursor.Current = Cursors.WaitCursor;
+                
                 int totalArchivos = chkArchivos.CheckedItems.Count;
+                var relojGlobal = System.Diagnostics.Stopwatch.StartNew();
 
                 foreach (var archivo in chkArchivos.CheckedItems)
                 {
-                    estado.Text = "Convirtiendo " + archivo + "...";
-                    Excel.Application xlApp = new Excel.Application();
+                    var reloj = System.Diagnostics.Stopwatch.StartNew();
 
-                    string rutaCompleta = folderBrowserDialog.SelectedPath + "\\" + archivo.ToString();
+                    string nombreArchivo = archivo.ToString();
+                    int indice = dgArchivosAConvertir.Rows.Count;
+                    dgArchivosAConvertir.Rows.Insert(indice, nombreArchivo, "Convirtiendo...");
+                    dgArchivosAConvertir.Rows[indice].DefaultCellStyle.BackColor = Color.DarkOrange;
+                    string rutaCompleta = folderBrowserDialog.SelectedPath + "\\" + nombreArchivo;
+                    
+                    Excel.Application xlApp = new Excel.Application();
                     Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(rutaCompleta);
                     Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[1];
                     Excel.Range xlRange = xlWorksheet.UsedRange;
@@ -80,9 +89,14 @@ namespace Folder2CSV
                     }
                     csv.Flush();
                     csv.Dispose();
+
+                    dgArchivosAConvertir.Rows[indice].Cells[1].Value = "Convertido";
+                    dgArchivosAConvertir.Rows[indice].Cells[2].Value = reloj.ElapsedMilliseconds + " ms";
+                    dgArchivosAConvertir.Rows[indice].DefaultCellStyle.BackColor = Color.LightGreen;
                 }
 
-                estado.Text = "Conversión finalizada.";
+                var demora = relojGlobal.ElapsedMilliseconds;
+                lblTiempo.Text = demora + " ms";
                 Cursor.Current = Cursors.Default;
             }
             else
@@ -102,5 +116,9 @@ namespace Folder2CSV
             return folderBrowserDialog.SelectedPath.ToString() + "\\" + nombreArchivo + ".csv";
         }
 
+        private void btnConvertirAsinc_Click(object sender, EventArgs e)
+        {
+            
+        }
     }
 }
