@@ -1,11 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
-
-// Para escribir el CSV
-using CsvHelper;
 
 // Para leer el Excel
 using NPOI.HSSF.UserModel;
@@ -22,40 +18,40 @@ namespace Folder2CSV
             cmbDelimitador.SelectedIndex = 0;
         }
 
-        private void btnSeleccionarCarpeta_Click(object sender, EventArgs e)
+        private void BtnSeleccionarCarpeta_Click(object sender, EventArgs e)
         {
             archivosXLS.Items.Clear();
-            
+
             folderBrowserDialog.ShowDialog();
 
             bool carpetaExiste = System.IO.Directory.Exists(folderBrowserDialog.SelectedPath);
+
             if (carpetaExiste)
             {
-                actualizarLabelCarpeta();
-
+                ActualizarLabelCarpeta();
                 string[] archivos = System.IO.Directory.GetFiles(folderBrowserDialog.SelectedPath);
-                cargarArchivosXLS(archivos);
+                CargarArchivosXLS(archivos);
             }
         }
 
-        private void actualizarLabelCarpeta()
+        private void ActualizarLabelCarpeta()
         {
             linklblCarpeta.Text = folderBrowserDialog.SelectedPath;
             linklblCarpeta.Enabled = true;
         }
-        
-        private void linklblCarpeta_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+
+        private void LinklblCarpeta_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", linklblCarpeta.Text);
         }
 
-        private void cargarArchivosXLS(string[] archivos)
+        private void CargarArchivosXLS(string[] archivos)
         {
             for (int i = 0; i < archivos.Length; i++)
             {
                 FileInfo fi = new FileInfo(archivos[i]);
                 string ext = fi.Extension;
-                if (ext == ".xls" || ext == ".xlsx" )
+                if (ext == ".xls" || ext == ".xlsx")
                 {
                     string nombreArchivo = fi.Name;
                     archivosXLS.Items.Add(nombreArchivo, true);
@@ -63,33 +59,37 @@ namespace Folder2CSV
             }
         }
 
-        private void cargarDataGridArchivos()
+        private void CargarDataGridArchivos()
         {
             foreach (var archivo in archivosXLS.CheckedItems)
             {
-                var i  = dgArchivosAConvertir.Rows.Count;
-                dgArchivosAConvertir.Rows.Insert(i, archivo.ToString(), "Pendiente");
+                int i = dgArchivosAConvertir.Rows.Count;
+                string nombreArch = archivo.ToString().Length > 30 ? archivo.ToString().Substring(0, 30) + "..." : archivo.ToString();
+                dgArchivosAConvertir.Rows.Insert(i, nombreArch, "Pendiente");
                 dgArchivosAConvertir.Rows[i].DefaultCellStyle.BackColor = Color.Yellow;
             }
         }
 
-        private void btnConvertir_Click(object sender, EventArgs e)
+        private void BtnConvertir_Click(object sender, EventArgs e)
         {
             if (System.IO.Directory.Exists(folderBrowserDialog.SelectedPath))
             {
                 dgArchivosAConvertir.Rows.Clear();
                 Cursor.Current = Cursors.WaitCursor;
-                
-                int totalArchivos = archivosXLS.CheckedItems.Count;
 
-                cargarDataGridArchivos();
+                int totalArchivos = archivosXLS.CheckedItems.Count;
+                // si no marco nada o no hay ningun archivo seleccionado...
+
+                CargarDataGridArchivos();
                 Application.DoEvents();
 
-                for (int indice = 0; indice < totalArchivos; indice++)
+                for (int nroArch = 0; nroArch < totalArchivos; nroArch++)
                 {
-                    Convertir(indice);
+                    ActualizarDataGrid(nroArch, "Convirtiendo...", Color.SteelBlue);
+                    Convertir(nroArch);
+                    ActualizarDataGrid(nroArch, "Terminado", Color.LightGreen);
                 }
- 
+
                 Cursor.Current = Cursors.Default;
             }
             else
@@ -98,67 +98,77 @@ namespace Folder2CSV
             }
         }
 
-        private void Convertir(int indice)
+        private void Convertir(int nroArch)
         {
-            ActualizarDataGrid(indice, "Convirtiendo...", Color.SteelBlue);
-            
-            string nombreArchExcel = archivosXLS.Items[indice].ToString();
-            string rutaCompleta = folderBrowserDialog.SelectedPath + "\\" + nombreArchExcel;
-            string rutaCSV = GenerarRutaCSV(nombreArchExcel);
-            var writer = new StreamWriter(rutaCSV);
-            var csv = new CsvWriter(writer);
-            csv.Configuration.Delimiter = ";";
+            string nombreExcel = archivosXLS.Items[nroArch].ToString();
+            string rutaExcel = folderBrowserDialog.SelectedPath + "\\" + nombreExcel;
+            string rutaCSV = GenerarRutaCSV(nombreExcel);
 
-            HSSFWorkbook libro;
-
-            using (var stream = new FileStream(rutaCompleta, FileMode.Open))
+            // TODO: si el excel está abierto tira excepcion
+            using (var writer = new StreamWriter(rutaCSV))
+            using (var stream = new FileStream(rutaExcel, FileMode.Open))
+            using (var reader = new StreamReader(stream))
             {
-                stream.Position = 0;
-                libro = new HSSFWorkbook(stream);
-
+                HSSFWorkbook libro = new HSSFWorkbook(stream);
                 ISheet hoja = libro.GetSheetAt(0);
 
-                int i = 0;
-
-                while (i <= hoja.LastRowNum && hoja.GetRow(i) != null)
+                foreach (IRow fila in hoja)
                 {
-                    var fila = hoja.GetRow(i);
-
-                    for (int j = 0; j < fila.Cells.Count; j++)
+                    foreach (ICell celda in fila)
                     {
-                        string campo;
-                        if (fila.GetCell(j) != null)
+                        if (celda.ColumnIndex == fila.LastCellNum - 1)
                         {
-                            byte[] bytes = Encoding.Default.GetBytes(fila.GetCell(j).ToString());
-                            campo = Encoding.UTF8.GetString(bytes).Trim().ToUpper();
-                        }
-                        else
+                            writer.WriteLine(GetValorCelda(celda));
+                        } else
                         {
-                            campo = "";
+                            writer.Write(GetValorCelda(celda) + ";");
                         }
-
-                        csv.WriteField(campo);
                     }
 
-                    dgArchivosAConvertir.Rows[indice].Cells[2].Value = i + "/" + hoja.LastRowNum;
-                    i += 1;
-
-                    csv.NextRecord();
+                    dgArchivosAConvertir.Rows[nroArch].Cells[2].Value = fila.RowNum + "/" + hoja.LastRowNum;
                     Application.DoEvents();
                 }
             }
 
-            csv.Dispose();
-
-            ActualizarDataGrid(indice, "Convertido", Color.LightGreen);
         }
 
+        private String GetValorCelda(ICell celda)
+        {
+            string valorCelda;
+            switch (celda.CellType)
+            {
+                case CellType.Numeric:
+                    if (DateUtil.IsCellDateFormatted(celda))
+                    {
+                        valorCelda = celda.DateCellValue.ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        valorCelda = celda.NumericCellValue.ToString().Trim().ToUpper();
+                    }
+                    break;
+
+                case CellType.String:
+                    valorCelda = celda.StringCellValue.Trim().ToUpper();
+                    break;
+
+                case CellType.Boolean:
+                    valorCelda = celda.BooleanCellValue ? "1" : "0";
+                    break;
+
+                default:
+                    valorCelda = "";
+                    break;
+            }
+
+            return valorCelda;
+        }
         private void ActualizarDataGrid(int indice, string msj, Color color)
         {
             dgArchivosAConvertir.Rows[indice].Cells[1].Value = msj;
             dgArchivosAConvertir.Rows[indice].DefaultCellStyle.BackColor = color;
         }
-        
+
         private string GenerarRutaCSV(string rutaArchivo)
         {
             FileInfo fi = new FileInfo(rutaArchivo);

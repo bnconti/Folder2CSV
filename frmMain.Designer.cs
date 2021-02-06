@@ -57,7 +57,7 @@ namespace Folder2CSV
             this.btnConvertir.TabIndex = 1;
             this.btnConvertir.Text = "Convertir";
             this.btnConvertir.UseVisualStyleBackColor = true;
-            this.btnConvertir.Click += new System.EventHandler(this.btnConvertir_Click);
+            this.btnConvertir.Click += new System.EventHandler(this.BtnConvertir_Click);
             // 
             // btnSeleccionarCarpeta
             // 
@@ -67,7 +67,7 @@ namespace Folder2CSV
             this.btnSeleccionarCarpeta.TabIndex = 4;
             this.btnSeleccionarCarpeta.Text = "Seleccionar carpeta";
             this.btnSeleccionarCarpeta.UseVisualStyleBackColor = true;
-            this.btnSeleccionarCarpeta.Click += new System.EventHandler(this.btnSeleccionarCarpeta_Click);
+            this.btnSeleccionarCarpeta.Click += new System.EventHandler(this.BtnSeleccionarCarpeta_Click);
             // 
             // lblCarpeta
             // 
@@ -88,7 +88,7 @@ namespace Folder2CSV
             this.linklblCarpeta.TabIndex = 6;
             this.linklblCarpeta.TabStop = true;
             this.linklblCarpeta.Text = "Ninguna";
-            this.linklblCarpeta.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblCarpeta_LinkClicked);
+            this.linklblCarpeta.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinklblCarpeta_LinkClicked);
             // 
             // archivosXLS
             // 
